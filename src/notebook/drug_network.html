@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "cyan", "font": {"color": "white"}, "id": "AKT", "label": "AKT", "shape": "dot", "title": "AKT"}, {"color": "cyan", "font": {"color": "white"}, "id": "ADAM17", "label": "ADAM17", "shape": "dot", "title": "ADAM17"}, {"color": "cyan", "font": {"color": "white"}, "id": "BCL2_BCL2L1", "label": "BCL2_BCL2L1", "shape": "dot", "title": "BCL2_BCL2L1"}, {"color": "cyan", "font": {"color": "white"}, "id": "FGFR", "label": "FGFR", "shape": "dot", "title": "FGFR"}, {"color": "cyan", "font": {"color": "white"}, "id": "MAP2K_1", "label": "MAP2K_1", "shape": "dot", "title": "MAP2K_1"}, {"color": "cyan", "font": {"color": "white"}, "id": "MTOR_1", "label": "MTOR_1", "shape": "dot", "title": "MTOR_1"}, {"color": "cyan", "font": {"color": "white"}, "id": "PIK3C", "label": "PIK3C", "shape": "dot", "title": "PIK3C"}, {"color": "cyan", "font": {"color": "white"}, "id": "PIK3CB_PIK3CD", "label": "PIK3CB_PIK3CD", "shape": "dot", "title": "PIK3CB_PIK3CD"}, {"color": "cyan", "font": {"color": "white"}, "id": "AKT_1", "label": "AKT_1", "shape": "dot", "title": "AKT_1"}, {"color": "cyan", "font": {"color": "white"}, "id": "ATR_4", "label": "ATR_4", "shape": "dot", "title": "ATR_4"}, {"color": "cyan", "font": {"color": "white"}, "id": "CSNK2A1_2", "label": "CSNK2A1_2", "shape": "dot", "title": "CSNK2A1_2"}, {"color": "cyan", "font": {"color": "white"}, "id": "Chloroquine", "label": "Chloroquine", "shape": "dot", "title": "Chloroquine"}, {"color": "cyan", "font": {"color": "white"}, "id": "ERBB", "label": "ERBB", "shape": "dot", "title": "ERBB"}, {"color": "cyan", "font": {"color": "white"}, "id": "HDAC_4", "label": "HDAC_4", "shape": "dot", "title": "HDAC_4"}, {"color": "cyan", "font": {"color": "white"}, "id": "PIK3CA_4", "label": "PIK3CA_4", "shape": "dot", "title": "PIK3CA_4"}, {"color": "cyan", "font": {"color": "white"}, "id": "PIK3C_2", "label": "PIK3C_2", "shape": "dot", "title": "PIK3C_2"}, {"color": "cyan", "font": {"color": "white"}, "id": "TNF", "label": "TNF", "shape": "dot", "title": "TNF"}, {"color": "cyan", "font": {"color": "white"}, "id": "AKT_SGK", "label": "AKT_SGK", "shape": "dot", "title": "AKT_SGK"}, {"color": "cyan", "font": {"color": "white"}, "id": "ALK_IGFR", "label": "ALK_IGFR", "shape": "dot", "title": "ALK_IGFR"}, {"color": "cyan", "font": {"color": "white"}, "id": "CarboTaxol", "label": "CarboTaxol", "shape": "dot", "title": "CarboTaxol"}, {"color": "cyan", "font": {"color": "white"}, "id": "BCL2", "label": "BCL2", "shape": "dot", "title": "BCL2"}, {"color": "cyan", "font": {"color": "white"}, "id": "IGFR_4", "label": "IGFR_4", "shape": "dot", "title": "IGFR_4"}, {"color": "cyan", "font": {"color": "white"}, "id": "Oxaliplatin", "label": "Oxaliplatin", "shape": "dot", "title": "Oxaliplatin"}, {"color": "cyan", "font": {"color": "white"}, "id": "Topotecan", "label": "Topotecan", "shape": "dot", "title": "Topotecan"}, {"color": "cyan", "font": {"color": "white"}, "id": "BCL2_2", "label": "BCL2_2", "shape": "dot", "title": "BCL2_2"}, {"color": "cyan", "font": {"color": "white"}, "id": "BCL2L1", "label": "BCL2L1", "shape": "dot", "title": "BCL2L1"}, {"color": "cyan", "font": {"color": "white"}, "id": "BRAF_M2", "label": "BRAF_M2", "shape": "dot", "title": "BRAF_M2"}, {"color": "cyan", "font": {"color": "white"}, "id": "MAP2K_3", "label": "MAP2K_3", "shape": "dot", "title": "MAP2K_3"}, {"color": "cyan", "font": {"color": "white"}, "id": "IAP", "label": "IAP", "shape": "dot", "title": "IAP"}, {"color": "cyan", "font": {"color": "white"}, "id": "CHEK1", "label": "CHEK1", "shape": "dot", "title": "CHEK1"}, {"color": "cyan", "font": {"color": "white"}, "id": "Cisplatin", "label": "Cisplatin", "shape": "dot", "title": "Cisplatin"}, {"color": "cyan", "font": {"color": "white"}, "id": "PARP1", "label": "PARP1", "shape": "dot", "title": "PARP1"}, {"color": "cyan", "font": {"color": "white"}, "id": "ALK", "label": "ALK", "shape": "dot", "title": "ALK"}, {"color": "cyan", "font": {"color": "white"}, "id": "Carboplatin", "label": "Carboplatin", "shape": "dot", "title": "Carboplatin"}, {"color": "cyan", "font": {"color": "white"}, "id": "Gemcitabine", "label": "Gemcitabine", "shape": "dot", "title": "Gemcitabine"}, {"color": "cyan", "font": {"color": "white"}, "id": "SYK", "label": "SYK", "shape": "dot", "title": "SYK"}, {"color": "cyan", "font": {"color": "white"}, "id": "EG5", "label": "EG5", "shape": "dot", "title": "EG5"}, {"color": "cyan", "font": {"color": "white"}, "id": "PIM1", "label": "PIM1", "shape": "dot", "title": "PIM1"}, {"color": "cyan", "font": {"color": "white"}, "id": "EGFR", "label": "EGFR", "shape": "dot", "title": "EGFR"}, {"color": "cyan", "font": {"color": "white"}, "id": "EGFR_2", "label": "EGFR_2", "shape": "dot", "title": "EGFR_2"}, {"color": "cyan", "font": {"color": "white"}, "id": "ESR1", "label": "ESR1", "shape": "dot", "title": "ESR1"}, {"color": "cyan", "font": {"color": "white"}, "id": "ESR1_1", "label": "ESR1_1", "shape": "dot", "title": "ESR1_1"}, {"color": "cyan", "font": {"color": "white"}, "id": "ESR1_3", "label": "ESR1_3", "shape": "dot", "title": "ESR1_3"}, {"color": "cyan", "font": {"color": "white"}, "id": "FASN", "label": "FASN", "shape": "dot", "title": "FASN"}, {"color": "cyan", "font": {"color": "white"}, "id": "BCL2_BCL2L1_BCL2L2", "label": "BCL2_BCL2L1_BCL2L2", "shape": "dot", "title": "BCL2_BCL2L1_BCL2L2"}, {"color": "cyan", "font": {"color": "white"}, "id": "MTOR_3", "label": "MTOR_3", "shape": "dot", "title": "MTOR_3"}, {"color": "cyan", "font": {"color": "white"}, "id": "PIK3C_MTOR", "label": "PIK3C_MTOR", "shape": "dot", "title": "PIK3C_MTOR"}, {"color": "cyan", "font": {"color": "white"}, "id": "Proteasome_2", "label": "Proteasome_2", "shape": "dot", "title": "Proteasome_2"}, {"color": "cyan", "font": {"color": "white"}, "id": "WNT", "label": "WNT", "shape": "dot", "title": "WNT"}, {"color": "cyan", "font": {"color": "white"}, "id": "ATM", "label": "ATM", "shape": "dot", "title": "ATM"}, {"color": "cyan", "font": {"color": "white"}, "id": "HSP90", "label": "HSP90", "shape": "dot", "title": "HSP90"}, {"color": "cyan", "font": {"color": "white"}, "id": "Doxorubicin", "label": "Doxorubicin", "shape": "dot", "title": "Doxorubicin"}, {"color": "cyan", "font": {"color": "white"}, "id": "IGFR_3", "label": "IGFR_3", "shape": "dot", "title": "IGFR_3"}, {"color": "cyan", "font": {"color": "white"}, "id": "JAK", "label": "JAK", "shape": "dot", "title": "JAK"}, {"color": "cyan", "font": {"color": "white"}, "id": "PIK3CA_3", "label": "PIK3CA_3", "shape": "dot", "title": "PIK3CA_3"}, {"color": "cyan", "font": {"color": "white"}, "id": "PIK3CB", "label": "PIK3CB", "shape": "dot", "title": "PIK3CB"}, {"color": "cyan", "font": {"color": "white"}, "id": "PTK2", "label": "PTK2", "shape": "dot", "title": "PTK2"}, {"color": "cyan", "font": {"color": "white"}, "id": "SN38", "label": "SN38", "shape": "dot", "title": "SN38"}, {"color": "cyan", "font": {"color": "white"}, "id": "TOP2_2", "label": "TOP2_2", "shape": "dot", "title": "TOP2_2"}, {"color": "cyan", "font": {"color": "white"}, "id": "Vinorelbine", "label": "Vinorelbine", "shape": "dot", "title": "Vinorelbine"}, {"color": "cyan", "font": {"color": "white"}, "id": "MTOR", "label": "MTOR", "shape": "dot", "title": "MTOR"}, {"color": "cyan", "font": {"color": "white"}, "id": "BRAF_M", "label": "BRAF_M", "shape": "dot", "title": "BRAF_M"}, {"color": "cyan", "font": {"color": "white"}, "id": "TKI", "label": "TKI", "shape": "dot", "title": "TKI"}, {"color": "cyan", "font": {"color": "white"}, "id": "ALK_2", "label": "ALK_2", "shape": "dot", "title": "ALK_2"}, {"color": "cyan", "font": {"color": "white"}, "id": "TNFSF10", "label": "TNFSF10", "shape": "dot", "title": "TNFSF10"}, {"color": "cyan", "font": {"color": "white"}, "id": "PIP5K1", "label": "PIP5K1", "shape": "dot", "title": "PIP5K1"}, {"color": "cyan", "font": {"color": "white"}, "id": "SLC16A4", "label": "SLC16A4", "shape": "dot", "title": "SLC16A4"}, {"color": "cyan", "font": {"color": "white"}, "id": "TNKS_PARP6", "label": "TNKS_PARP6", "shape": "dot", "title": "TNKS_PARP6"}, {"color": "cyan", "font": {"color": "white"}, "id": "TOP2", "label": "TOP2", "shape": "dot", "title": "TOP2"}]);
+                  edges = new vis.DataSet([{"color": "blue", "from": "AKT", "to": "ADAM17", "value": 29.54039}, {"color": "blue", "from": "BCL2_BCL2L1", "to": "ADAM17", "value": -7.039191}, {"color": "blue", "from": "FGFR", "to": "ADAM17", "value": -11.91837}, {"color": "blue", "from": "MAP2K_1", "to": "ADAM17", "value": -0.1462845}, {"color": "blue", "from": "MTOR_1", "to": "ADAM17", "value": 18.30981}, {"color": "blue", "from": "PIK3C", "to": "ADAM17", "value": -7.76057}, {"color": "blue", "from": "PIK3CB_PIK3CD", "to": "ADAM17", "value": -22.06479}, {"color": "blue", "from": "AKT_1", "to": "AKT", "value": 13.01508}, {"color": "blue", "from": "ATR_4", "to": "AKT", "value": -14.1991}, {"color": "red", "from": "CSNK2A1_2", "to": "AKT", "value": 73.02446}, {"color": "blue", "from": "Chloroquine", "to": "AKT", "value": 13.53424}, {"color": "blue", "from": "ERBB", "to": "AKT", "value": -1.172512}, {"color": "blue", "from": "FGFR", "to": "AKT", "value": -41.87943}, {"color": "blue", "from": "HDAC_4", "to": "AKT", "value": 2.133099}, {"color": "blue", "from": "PIK3CA_4", "to": "AKT", "value": 12.91164}, {"color": "blue", "from": "PIK3C_2", "to": "AKT", "value": 3.443067}, {"color": "red", "from": "TNF", "to": "AKT", "value": 108.1946}, {"color": "blue", "from": "PIK3C", "to": "AKT_1", "value": 22.94989}, {"color": "blue", "from": "PIK3CB_PIK3CD", "to": "AKT_1", "value": 0.33427}, {"color": "red", "from": "PIK3C_2", "to": "AKT_1", "value": 32.02186}, {"color": "blue", "from": "BCL2_BCL2L1", "to": "AKT_SGK", "value": 6.61977}, {"color": "blue", "from": "FGFR", "to": "AKT_SGK", "value": 19.64844}, {"color": "blue", "from": "MAP2K_1", "to": "AKT_SGK", "value": 20.09961}, {"color": "blue", "from": "PIK3C", "to": "AKT_SGK", "value": 17.68523}, {"color": "red", "from": "ALK_IGFR", "to": "AKT", "value": 45.51825}, {"color": "blue", "from": "ALK_IGFR", "to": "AKT_1", "value": 9.032871}, {"color": "blue", "from": "MTOR_1", "to": "ALK_IGFR", "value": 5.22171}, {"color": "blue", "from": "PIK3CB_PIK3CD", "to": "ALK_IGFR", "value": 13.93663}, {"color": "blue", "from": "BCL2_BCL2L1", "to": "ATR_4", "value": -19.63386}, {"color": "blue", "from": "MAP2K_1", "to": "ATR_4", "value": -11.71682}, {"color": "blue", "from": "MTOR_1", "to": "ATR_4", "value": -12.53156}, {"color": "blue", "from": "CarboTaxol", "to": "BCL2", "value": 5.015081}, {"color": "blue", "from": "IGFR_4", "to": "BCL2", "value": 1.200509}, {"color": "blue", "from": "MAP2K_1", "to": "BCL2", "value": 23.4814}, {"color": "blue", "from": "Oxaliplatin", "to": "BCL2", "value": -4.177698}, {"color": "blue", "from": "Topotecan", "to": "BCL2", "value": 20.66254}, {"color": "blue", "from": "BCL2_2", "to": "AKT_1", "value": 25.53357}, {"color": "blue", "from": "BCL2_BCL2L1", "to": "AKT_1", "value": 8.523461}, {"color": "blue", "from": "FGFR", "to": "BCL2_BCL2L1", "value": 4.53158}, {"color": "blue", "from": "MAP2K_1", "to": "BCL2_BCL2L1", "value": 14.85647}, {"color": "blue", "from": "PIK3CA_4", "to": "BCL2_BCL2L1", "value": 17.25327}, {"color": "red", "from": "BCL2L1", "to": "AKT", "value": 90.44495}, {"color": "blue", "from": "BCL2L1", "to": "AKT_1", "value": 28.39611}, {"color": "blue", "from": "MTOR_1", "to": "BCL2L1", "value": -2.710603}, {"color": "red", "from": "PIK3C", "to": "BCL2L1", "value": 31.33833}, {"color": "blue", "from": "MAP2K_1", "to": "BRAF_M2", "value": 15.82581}, {"color": "red", "from": "MAP2K_3", "to": "BRAF_M2", "value": 72.17994}, {"color": "blue", "from": "CarboTaxol", "to": "ATR_4", "value": 2.335289}, {"color": "blue", "from": "CarboTaxol", "to": "BCL2L1", "value": 22.42314}, {"color": "blue", "from": "IAP", "to": "CHEK1", "value": 29.25684}, {"color": "blue", "from": "Chloroquine", "to": "AKT_1", "value": -24.49662}, {"color": "blue", "from": "PIK3C", "to": "Chloroquine", "value": -35.51228}, {"color": "blue", "from": "Cisplatin", "to": "AKT", "value": 12.96846}, {"color": "blue", "from": "FGFR", "to": "Cisplatin", "value": 1.529579}, {"color": "blue", "from": "HDAC_4", "to": "Cisplatin", "value": -15.31246}, {"color": "blue", "from": "PARP1", "to": "Cisplatin", "value": 13.76886}, {"color": "blue", "from": "PIK3C", "to": "Cisplatin", "value": 7.992271}, {"color": "blue", "from": "CSNK2A1_2", "to": "ALK", "value": 15.53071}, {"color": "red", "from": "CSNK2A1_2", "to": "BCL2", "value": 69.18126}, {"color": "blue", "from": "CSNK2A1_2", "to": "CarboTaxol", "value": -12.31963}, {"color": "blue", "from": "CSNK2A1_2", "to": "Carboplatin", "value": -3.080912}, {"color": "blue", "from": "Gemcitabine", "to": "CSNK2A1_2", "value": -27.84904}, {"color": "blue", "from": "SYK", "to": "CSNK2A1_2", "value": -9.067485}, {"color": "blue", "from": "PARP1", "to": "EG5", "value": -2.88879}, {"color": "red", "from": "PIM1", "to": "EG5", "value": 45.1207}, {"color": "red", "from": "EGFR", "to": "AKT", "value": 34.64965}, {"color": "red", "from": "EGFR", "to": "AKT_1", "value": 55.06239}, {"color": "blue", "from": "EGFR", "to": "BCL2_BCL2L1", "value": 10.4119}, {"color": "blue", "from": "FGFR", "to": "EGFR", "value": 19.19952}, {"color": "red", "from": "MAP2K_1", "to": "EGFR", "value": 53.61903}, {"color": "red", "from": "EGFR_2", "to": "AKT_1", "value": 43.64678}, {"color": "blue", "from": "EGFR_2", "to": "ALK", "value": 25.55663}, {"color": "blue", "from": "FGFR", "to": "ERBB", "value": 13.62757}, {"color": "blue", "from": "IAP", "to": "ERBB", "value": 6.407124}, {"color": "blue", "from": "MAP2K_1", "to": "ERBB", "value": 26.87017}, {"color": "red", "from": "MTOR_1", "to": "ERBB", "value": 38.62213}, {"color": "blue", "from": "PIK3CA_4", "to": "ERBB", "value": 22.22986}, {"color": "blue", "from": "ESR1", "to": "AKT_1", "value": -24.67385}, {"color": "blue", "from": "FGFR", "to": "ESR1", "value": 2.885581}, {"color": "blue", "from": "MAP2K_1", "to": "ESR1", "value": 13.94696}, {"color": "blue", "from": "MTOR_1", "to": "ESR1", "value": 6.927788}, {"color": "blue", "from": "ESR1_1", "to": "AKT_1", "value": -12.6923}, {"color": "blue", "from": "MTOR_1", "to": "ESR1_1", "value": -8.310624}, {"color": "red", "from": "PIK3C", "to": "ESR1_1", "value": 47.01936}, {"color": "blue", "from": "MTOR_1", "to": "ESR1_3", "value": -29.96694}, {"color": "blue", "from": "FASN", "to": "BCL2_BCL2L1", "value": 14.10614}, {"color": "blue", "from": "MAP2K_1", "to": "FASN", "value": 0.5736392}, {"color": "blue", "from": "MTOR_1", "to": "FASN", "value": 17.66288}, {"color": "blue", "from": "FGFR", "to": "BCL2_BCL2L1_BCL2L2", "value": -17.2007}, {"color": "blue", "from": "FGFR", "to": "Chloroquine", "value": -27.32585}, {"color": "blue", "from": "MTOR_1", "to": "FGFR", "value": 3.410365}, {"color": "blue", "from": "MTOR_3", "to": "FGFR", "value": -6.632685}, {"color": "blue", "from": "PIK3C_MTOR", "to": "FGFR", "value": 4.902747}, {"color": "blue", "from": "Proteasome_2", "to": "FGFR", "value": 0.03930111}, {"color": "blue", "from": "WNT", "to": "FGFR", "value": 3.94674}, {"color": "blue", "from": "Gemcitabine", "to": "ATM", "value": -0.04571745}, {"color": "blue", "from": "Gemcitabine", "to": "BCL2_BCL2L1", "value": 9.388698}, {"color": "blue", "from": "Gemcitabine", "to": "ERBB", "value": -1.628266}, {"color": "blue", "from": "PARP1", "to": "Gemcitabine", "value": 0.9178461}, {"color": "blue", "from": "HDAC_4", "to": "ATR_4", "value": -19.95509}, {"color": "blue", "from": "PARP1", "to": "HDAC_4", "value": -5.843584}, {"color": "blue", "from": "PARP1", "to": "HSP90", "value": 21.63577}, {"color": "red", "from": "IAP", "to": "ATR_4", "value": 32.43808}, {"color": "red", "from": "IAP", "to": "BCL2L1", "value": 62.02191}, {"color": "red", "from": "IAP", "to": "BCL2_BCL2L1", "value": 44.10317}, {"color": "red", "from": "IAP", "to": "Doxorubicin", "value": 42.58561}, {"color": "blue", "from": "IGFR_3", "to": "IAP", "value": -7.399541}, {"color": "blue", "from": "IGFR_4", "to": "IAP", "value": 11.25531}, {"color": "blue", "from": "JAK", "to": "IAP", "value": -4.91609}, {"color": "blue", "from": "Oxaliplatin", "to": "IAP", "value": 28.54097}, {"color": "blue", "from": "PARP1", "to": "IAP", "value": 11.37035}, {"color": "blue", "from": "PIK3C", "to": "IAP", "value": 27.19579}, {"color": "blue", "from": "PIK3CA_3", "to": "IAP", "value": 9.755133}, {"color": "blue", "from": "PIK3CB", "to": "IAP", "value": 7.526779}, {"color": "red", "from": "PTK2", "to": "IAP", "value": 48.58531}, {"color": "blue", "from": "SN38", "to": "IAP", "value": 20.48231}, {"color": "blue", "from": "TNF", "to": "IAP", "value": 15.64838}, {"color": "red", "from": "TOP2_2", "to": "IAP", "value": 48.77588}, {"color": "red", "from": "Topotecan", "to": "IAP", "value": 46.49813}, {"color": "blue", "from": "Vinorelbine", "to": "IAP", "value": 4.970321}, {"color": "blue", "from": "MTOR", "to": "JAK", "value": -16.49354}, {"color": "blue", "from": "MAP2K_1", "to": "BRAF_M", "value": -26.34301}, {"color": "red", "from": "MAP2K_1", "to": "HSP90", "value": 35.24843}, {"color": "blue", "from": "MAP2K_1", "to": "IGFR_3", "value": -5.643498}, {"color": "blue", "from": "MAP2K_1", "to": "IGFR_4", "value": 5.074641}, {"color": "red", "from": "MTOR_1", "to": "MAP2K_1", "value": 41.27628}, {"color": "red", "from": "PIK3C", "to": "MAP2K_1", "value": 52.52023}, {"color": "blue", "from": "PIM1", "to": "MAP2K_1", "value": 24.60826}, {"color": "blue", "from": "PTK2", "to": "MAP2K_1", "value": 13.48129}, {"color": "blue", "from": "TKI", "to": "MAP2K_1", "value": 26.51374}, {"color": "blue", "from": "PIK3C", "to": "MAP2K_3", "value": -20.02647}, {"color": "blue", "from": "MTOR_1", "to": "ALK", "value": 28.55891}, {"color": "red", "from": "MTOR_1", "to": "ALK_2", "value": 75.93458}, {"color": "blue", "from": "PIK3C", "to": "MTOR_1", "value": 5.682313}, {"color": "blue", "from": "PIK3C", "to": "PARP1", "value": 22.76175}, {"color": "blue", "from": "PIK3CB_PIK3CD", "to": "PARP1", "value": 22.9615}, {"color": "blue", "from": "PIK3C", "to": "ALK", "value": 0.8608555}, {"color": "blue", "from": "PIK3C", "to": "HSP90", "value": -4.008479}, {"color": "red", "from": "PIM1", "to": "PIK3C", "value": 47.83311}, {"color": "blue", "from": "TNFSF10", "to": "PIK3C", "value": -7.765347}, {"color": "blue", "from": "PIK3CA_3", "to": "CSNK2A1_2", "value": -10.98224}, {"color": "blue", "from": "PIK3CA_4", "to": "MTOR_1", "value": 21.35294}, {"color": "blue", "from": "PIK3CA_4", "to": "PIK3C_2", "value": -10.77771}, {"color": "red", "from": "PIK3CB", "to": "ALK_2", "value": 31.25151}, {"color": "blue", "from": "Topotecan", "to": "PIK3CB", "value": -1.348835}, {"color": "blue", "from": "PIK3CB_PIK3CD", "to": "EG5", "value": -15.75108}, {"color": "red", "from": "PIM1", "to": "BCL2_BCL2L1", "value": 61.93823}, {"color": "red", "from": "TOP2_2", "to": "PIM1", "value": 44.70102}, {"color": "red", "from": "PIP5K1", "to": "AKT", "value": 31.56132}, {"color": "blue", "from": "PIP5K1", "to": "MAP2K_1", "value": 5.238078}, {"color": "blue", "from": "PIP5K1", "to": "PIK3C", "value": -4.011929}, {"color": "blue", "from": "PIP5K1", "to": "PIK3CB_PIK3CD", "value": -0.1666601}, {"color": "red", "from": "SLC16A4", "to": "BCL2_BCL2L1", "value": 32.95021}, {"color": "blue", "from": "SLC16A4", "to": "FGFR", "value": 28.17354}, {"color": "blue", "from": "SLC16A4", "to": "MAP2K_1", "value": 14.30177}, {"color": "blue", "from": "SLC16A4", "to": "MTOR_1", "value": -13.05606}, {"color": "blue", "from": "SLC16A4", "to": "PIK3CB_PIK3CD", "value": -22.35887}, {"color": "blue", "from": "TKI", "to": "IGFR_3", "value": -4.845865}, {"color": "blue", "from": "TNFSF10", "to": "CSNK2A1_2", "value": 0.04781795}, {"color": "blue", "from": "TNKS_PARP6", "to": "AKT", "value": -1.423423}, {"color": "blue", "from": "TNKS_PARP6", "to": "FGFR", "value": 2.072074}, {"color": "blue", "from": "TNKS_PARP6", "to": "MTOR_1", "value": -0.6367973}, {"color": "blue", "from": "TNKS_PARP6", "to": "PIK3CB_PIK3CD", "value": 2.721688}, {"color": "blue", "from": "TOP2", "to": "ALK_2", "value": 24.53776}, {"color": "red", "from": "TOP2", "to": "Doxorubicin", "value": 56.57299}, {"color": "blue", "from": "Vinorelbine", "to": "BCL2L1", "value": 7.212933}, {"color": "blue", "from": "Vinorelbine", "to": "BCL2_2", "value": -5.017739}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
