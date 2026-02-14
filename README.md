@@ -14,7 +14,7 @@ I pick a dataset on my own follow the contents from the course 'End-to-end ML pr
 
 ## Data 📊
 
-* We use the data and pre-procesing steps from (this paper)[https://doi.org/10.1093/biomethods/bpaf033], which in turns takes over from the (Drug combination prediction DREAM challenge)[https://doi.org/10.1038/s41467-019-09799-2] 
+* We use the data and pre-procesing steps from [this paper](https://doi.org/10.1093/biomethods/bpaf033), which in turns takes over from the [Drug combination prediction DREAM challenge](https://doi.org/10.1038/s41467-019-09799-2) 
 - Description:
 - Size / format:
 - Preprocessing steps:
