@@ -1,5 +1,7 @@
 # Drug synergy prediction
 
+(in progress)
+
 End-to-end ml project on prediction of drug interaction effects. The aim is to practice project structure, modularization and deployment.
 
 I pick a dataset on my own and follow the contents from the course 'End-to-end ML project' from krishnaik06 on [youtube](https://www.youtube.com/playlist?list=PLZoTAELRMXVPS-dOaVbAux22vzqdgoGhG).
