@@ -1,6 +1,4 @@
-# Drug synergy prediction
-
-(in progress)
+# Drug synergy prediction (ongoing)
 
 End-to-end ml project on prediction of drug interaction effects. The aim is to practice project structure, modularization and deployment.
 
