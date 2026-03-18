@@ -1,31 +1,30 @@
-#we want to keep a record of things going right or wrong, particularly where, why, with which
-#inputs
+#this module configures logging for the project,
+# - creates a log with important steps on the process and errors
+# - names it uniquely based on time and date
 
 import os #work with paths and dirs, code works in any OS
-import logging #python default logging system
-from datetime import datetime
+import logging #python built in logging sys
+from datetime import datetime #used for naming
 
-#NAMING LOG FILE
-#we want a unique file per run, we use date and time to create unique names
+#create var for naming file
 LOG_FILE=f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
-#datetime.now() returns current date and time
-#.strftime() converts date and time data to a string of specific format
+#as we want a unique file per run, we use date and time to create unique names
+####datetime.now() - current date and time
+####.strftime() - converts current date and time to specific format
 
-#STORING LOG FILE
-logs_dir = os.path.join(os.getcwd(), "logs") #path to logs folder
-os.makedirs(logs_dir, exist_ok=True) #craetes logs folder based on path
-LOG_FILE_PATH = os.path.join(logs_dir, LOG_FILE) #path to log file
-#os.getcwd() returns string of current path
-#os.path.joins() joins strings
+#create storing file
+logs_dir = os.path.join(os.getcwd(), "logs") #create var for logs folder: current path + 'logs'
+os.makedirs(logs_dir, exist_ok=True) #create folder
+LOG_FILE_PATH = os.path.join(logs_dir, LOG_FILE) #crate var log file
 
-#CREATING LOG FILE
-#we import this function to toher scripts in src right after a piece of code we want to evaluate,
-#we add a custom message on each use
+#python built in logging sys; basicConfig() configures logging for the whole project
 logging.basicConfig(
-    filename=LOG_FILE_PATH, #notice, whole path! w/o this logs go to terminal
+    filename=LOG_FILE_PATH,
     format="[ %(asctime)s ] %(lineno)d %(name)s - %(levelname)s - %(message)s",
-    #date and time, line, level (in this case, info, warning, error, critical), message (customizable)
-    level=logging.INFO, #what we store, INFO stores (INFO, WARNING, ERROR, CRITICAL), there are other 'levels'
+    #log looks like: [time] line_number module_name - LEVEL - custom message
+    #e.g. [ 03_18_2026_12_30_00 ] 45 data_ingestion - INFO - Train test split initiated
+    level=logging.INFO, #there are 5 logging levels, ordered by severity. This stores levels 2-5 (1 too noisy)
 )
+
 
     
