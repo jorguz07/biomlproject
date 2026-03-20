@@ -6,4 +6,5 @@ networkx
 scipy
 catboost
 xgboost
+dill
 #-e .

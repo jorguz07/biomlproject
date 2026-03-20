@@ -5,6 +5,7 @@
 #when coding, we raise errors, usually as 'raise e'. 
 #here we will use 'raise somecustomerror(e, sys)
 
+import os
 import sys
 from src.logger import logging #we want errors to be logged too!
 
@@ -13,7 +14,8 @@ def error_message_detail(error, error_detail:sys): #define object type of error_
     ''' Takes error object and its details from system and creates a string that shows script where
     error is, line and then the original system error '''
     _,_,exc_tb=error_detail.exc_info() #extract throwback: exception location
-    file_name=exc_tb.tb_frame.f_code.co_filename #script that produced error
+    file_name= os.path.basename(exc_tb.tb_frame.f_code.co_filename) #script that produced error
+        #exc_tb.tb_frame.f_code.co_filename 
     error_line=exc_tb.tb_lineno #line in script that produced error
     error_message="Error occured in python script [{0}] line number[{1}] error message[{2}]".format(
         file_name,error_line,str(error)) #custom message, gives sys error at the end anyways
