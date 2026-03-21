@@ -1,7 +1,8 @@
 #this module defines the data transform component
-# - builds preprocessing and transformation piepline
-# - transforms data
-# - saves pipeline object
+# - splits training and testing arrays into dep and ind vars
+# - trains and tests on a catalogue of models
+# - saves best model object
+# - returns r2 of best model object
 
 import os
 import sys
@@ -21,19 +22,21 @@ from src.logger import logging
 from src.utils import save_object
 from src.utils import evaluate_models
 
-#class to store vars, to be used in data itransformation
+#class to store vars, to be used in model trainer
 @dataclass
 class ModelTrainerConfig:
-    trained_model_file_path = os.path.join( 'artifacts','model.pkl' )
+    best_model_storing_path = os.path.join( 'artifacts','model.pkl' )
 
 #class for data training
 class ModelTrainer:
     def __init__(self):
-        self.model_trainer_config = ModelTrainerConfig() #creates instance of DataTrainingConfig class
+        self.model_trainer_config = ModelTrainerConfig() #creates instance of ModelTrainerConfig class
 
     def initiate_model_trainer(self, train_array, test_array):
+        ''' Given preprocessed train and test data as arrays, applies a selection of models and evaluates them with R2.
+         Saves best model object and resturs its r2 '''
         try:
-            logging.info( 'Split trianing and test input data' )
+            #dep and ind vars from train and test dfs
             X_train, y_train, X_test, y_test = (
                 train_array[:,:-1], #take everything but the last col
                 train_array[:,-1], #take last col
@@ -41,7 +44,9 @@ class ModelTrainer:
                 test_array[:,-1]
 
             )
+            logging.info( 'Splitting trianing and test data completed' )
         
+            #models dicc
             models = {
                 "Linear Regression": LinearRegression(),
                 "Lasso": Lasso(),
@@ -54,25 +59,22 @@ class ModelTrainer:
                 "AdaBoost Regressor": AdaBoostRegressor()
             }
 
+            #evaluate models and report
             model_report:dict = evaluate_models( X_train = X_train, y_train = y_train, X_test = X_test, y_test = y_test,
                                                models=models )
             
-            # To get best model score from dicc
-            best_model_score = max( sorted( model_report.values() ) )
-
-            #To gest best model name from dicc
-            best_model_name = list( model_report.keys() )[
-                list( model_report.values() ).index( best_model_score )
-            ]
-
+            #best model
+            best_model_score = max( model_report.values() ) #best model score
+            best_model_name = max( model_report, key=model_report.get ) #best model name
             best_model = models[best_model_name]
 
-            if best_model_score < 0.01:
+            if best_model_score < 0.01: #if no best model cancel
                 raise CustomException( "No best model found" )
             logging.info( f'Best found model on both trianing and testing dataset' )
 
+            #save best model object, we want to use it later
             save_object(
-                file_path = self.model_trainer_config.trained_model_file_path,
+                file_path = self.model_trainer_config.best_model_storing_path,
                 obj=best_model
             )
 

@@ -1,7 +1,7 @@
 #this module defines the data transform component
 # - builds preprocessing and transformation piepline
-# - transforms data
-# - saves pipeline object
+# - saves fit pipeline object
+# - returns paths for processed train, test data as arrays
 
 import os
 import sys
@@ -22,7 +22,7 @@ from src.utils import save_object
 #class to store vars, to be used in data itransformation
 @dataclass #to avoid __init__ (mostly only for data containers!)
 class DataTransformationConfig:
-    preprocessor_obj_file_path: str=os.path.join('artifacts', 'preprocessor.pkl')
+    preprocessor_storing_path: str=os.path.join('artifacts', 'preprocessor.pkl')
 
 #class for data transformation
 class DataTransformation:
@@ -31,7 +31,7 @@ class DataTransformation:
 
     #build preprocessor
     def get_data_transformer_object(self, numerical_features, categorical_features):
-        ''' Given lists of num and cat vars, builds preprocessing object '''
+        ''' Given lists of num and cat vars, returns preprocessing object '''
         try:
             #def num and cat pipelines
             num_pipeline = Pipeline(
@@ -65,7 +65,8 @@ class DataTransformation:
     
     #applies preprocessor
     def initiate_data_transformation(self, train_path, test_path):
-        ''' Given train and test data paths, applies preprocessing object '''
+        ''' Given train and test data paths, applies preprocessing object, saves it and returns its path, together with
+        train, test preprocessed data as arrays '''
         try:
             #read data
             train_df = pd.read_csv( train_path )
@@ -107,9 +108,9 @@ class DataTransformation:
             train_arr = np.c_[ input_feature_train_arr, target_train_df.values.reshape(-1,1) ] #change to array
             test_arr = np.c_[ input_feature_test_arr, target_test_df.values.reshape(-1,1) ]
 
-            #save fitted preprocessing object
+            #save fit preprocessing object, we want to use it later
             save_object(
-                file_path = self.data_transformation_config.preprocessor_obj_file_path,
+                file_path = self.data_transformation_config.preprocessor_storing_path,
                 obj=preprocessing_obj
             )
             logging.info( 'Fit processing object saved' )
@@ -117,7 +118,7 @@ class DataTransformation:
             return (
                 train_arr,
                 test_arr,
-                self.data_transformation_config.preprocessor_obj_file_path,
+                self.data_transformation_config.preprocessor_storing_path,
             )
 
         except Exception as e:

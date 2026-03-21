@@ -1,8 +1,9 @@
 #this module defines the data ingestion component:
 # - loads data from source
-# - performs minimal validation and filtering
+# - saves data localy
+# - minimal validation and filtering
 # - integrates datasets
-# - train-test splits
+# - returns paths for train, test data as dfs
 
 import sys
 import os
@@ -37,7 +38,8 @@ class DataIngestion:
         self.ingestion_config = DataIngestionConfig() #creates instance of DataIngestionConfig class
 
     def initiate_data_ingestion(self):
-        ''' Takes, stores, lightlty preprocess and merges original data. Train-test splits, stores and returs resulting dfs '''
+        ''' Extracts data sources stores them, lightly pre-process and integrates data. Produces train, test datasets and stores them,
+        returning their pahts '''
         logging.info( 'Entered the data ingestion component' )
 
         try: 
@@ -98,14 +100,15 @@ class DataIngestion:
             raise CustomException(e,sys) #if something happens, use our custom exception
         
 if __name__=='__main__':
-    obj=DataIngestion()
-    train_data, test_data = obj.initiate_data_ingestion()
+    obj = DataIngestion() #create object of DataIngestion clas
+    train_data, test_data = obj.initiate_data_ingestion() #start data inestion and produce train-test splits
 
-    data_transformation = DataTransformation()
-    train_arr, test_arr, _ = data_transformation.initiate_data_transformation( train_data, test_data )
+    data_transformation = DataTransformation() #create object of DataTransformation class
+    train_arr, test_arr, _ = data_transformation.initiate_data_transformation( train_data, test_data ) 
+    #start data transformation and produce train-test arrays
 
-    modeltrainer=ModelTrainer()
-    print( modeltrainer.initiate_model_trainer( train_arr, test_arr ) )
+    modeltrainer=ModelTrainer() #create object of ModelTrainer class
+    print( modeltrainer.initiate_model_trainer( train_arr, test_arr ) ) #start model training and produce r2 of best model
 
 
 #every python files has a built in varaible __name__. If file ran directly, __name__ = '__main__', so the
