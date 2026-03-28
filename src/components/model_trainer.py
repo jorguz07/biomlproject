@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor,AdaBoostRegressor
+from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from catboost import CatBoostRegressor
@@ -54,23 +54,69 @@ class ModelTrainer:
                 "K-Neighbors Regressor": KNeighborsRegressor(),
                 "Decision Tree": DecisionTreeRegressor(),
                 "Random Forest Regressor": RandomForestRegressor(),
-                "XGBRegressor": XGBRegressor(), 
+                "Gradient Boosting": GradientBoostingRegressor(),
+                "XGBRegressor": XGBRegressor(),
                 "CatBoosting Regressor": CatBoostRegressor(verbose=False),
                 "AdaBoost Regressor": AdaBoostRegressor()
             }
 
-            #evaluate models and report
-            model_report:dict = evaluate_models( X_train = X_train, y_train = y_train, X_test = X_test, y_test = y_test,
-                                               models=models )
+            #params
+            params = {
+                "Decision Tree": {
+                    'criterion': ['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
+                },
+                "Random Forest Regressor": {
+                    'n_estimators': [8, 16, 32, 64, 128, 256]
+                },
+                "Gradient Boosting": {
+                    'learning_rate': [.1, .01, .05, .001],
+                    'subsample': [0.6, 0.7, 0.8, 0.9],
+                    'n_estimators': [8, 16, 32, 64, 128]
+                },
+                "Linear Regression": {},
+                "Lasso": {
+                    'alpha': [0.01, 0.1, 1.0, 10.0]
+                },
+                "Ridge": {
+                    'alpha': [0.01, 0.1, 1.0, 10.0]
+                },
+                "K-Neighbors Regressor": {
+                    'n_neighbors': [3, 5, 7]
+                },
+                "XGBRegressor": {
+                    'learning_rate': [.1, .01],
+                    'n_estimators': [50, 100]
+                },
+                "CatBoosting Regressor": {
+                    'depth': [6, 8],
+                    'learning_rate': [0.01, 0.05],
+                    'iterations': [30, 50]
+                },
+                "AdaBoost Regressor": {
+                    'learning_rate': [.1, .01],
+                    'n_estimators': [50, 100]
+                }
+            }
+
+            # evaluate models
+            model_report, best_models = evaluate_models(
+             X_train=X_train,
+             y_train=y_train,
+             X_test=X_test,
+             y_test=y_test,
+             models=models,
+             param=params
+            )
             
             #best model
-            best_model_score = max( model_report.values() ) #best model score
-            best_model_name = max( model_report, key=model_report.get ) #best model name
-            best_model = models[best_model_name]
+            best_model_name = max(model_report, key=model_report.get)
+            best_model_score = model_report[best_model_name]
+            best_model = best_models[best_model_name]
 
             if best_model_score < 0.01: #if no best model cancel
                 raise CustomException( "No best model found" )
-            logging.info( f'Best found model on both trianing and testing dataset' )
+
+            logging.info(f"Best model: {best_model_name} with score: {best_model_score}")
 
             #save best model object, we want to use it later
             save_object(
