@@ -100,15 +100,31 @@ class DataIngestion:
             raise CustomException(e,sys) #if something happens, use our custom exception
         
 if __name__=='__main__':
-    obj = DataIngestion() #create object of DataIngestion clas
-    train_data, test_data = obj.initiate_data_ingestion() #start data inestion and produce train-test splits
+    # --- Data Ingestion ---
+    obj = DataIngestion()  # create object of DataIngestion class
+    train_data_path, test_data_path = obj.initiate_data_ingestion()  # start data ingestion and produce train-test splits
 
-    data_transformation = DataTransformation() #create object of DataTransformation class
-    train_arr, test_arr, _ = data_transformation.initiate_data_transformation( train_data, test_data ) 
-    #start data transformation and produce train-test arrays
+    # --- Read original unprocessed DataFrames for WPC ---
+    train_df_orig = pd.read_csv(train_data_path)
+    test_df_orig = pd.read_csv(test_data_path)
 
-    modeltrainer=ModelTrainer() #create object of ModelTrainer class
-    print( modeltrainer.initiate_model_trainer( train_arr, test_arr ) ) #start model training and produce r2 of best model
+    # --- Data Transformation ---
+    data_transformation = DataTransformation()  # create object of DataTransformation class
+    train_arr, test_arr, _ = data_transformation.initiate_data_transformation(train_data_path, test_data_path) 
+    # start data transformation and produce train-test arrays
+
+    # --- Model Training with WPC metric ---
+    modeltrainer = ModelTrainer()  # create object of ModelTrainer class
+    # Pass original DataFrames to compute Weighted Pearson Correlation
+    best_model_wpc = modeltrainer.initiate_model_trainer(
+        train_array=train_arr,
+        test_array=test_arr,
+        train_df=train_df_orig,
+        test_df=test_df_orig
+    )
+    # start model training and produce WPC of best model
+
+    print(f"Best model Weighted Pearson Correlation on test set: {best_model_wpc:.4f}")
 
 
 #every python files has a built in varaible __name__. If file ran directly, __name__ = '__main__', so the

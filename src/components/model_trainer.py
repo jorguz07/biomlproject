@@ -8,6 +8,8 @@ import os
 import sys
 from dataclasses import dataclass
 
+from scipy.stats import pearsonr
+
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor, GradientBoostingRegressor
@@ -27,26 +29,23 @@ from src.utils import evaluate_models
 class ModelTrainerConfig:
     best_model_storing_path = os.path.join( 'artifacts','model.pkl' )
 
-#class for data training
+# class for data training
 class ModelTrainer:
     def __init__(self):
-        self.model_trainer_config = ModelTrainerConfig() #creates instance of ModelTrainerConfig class
+        self.model_trainer_config = ModelTrainerConfig()  # creates instance of ModelTrainerConfig class
 
-    def initiate_model_trainer(self, train_array, test_array):
+    def initiate_model_trainer(self, train_array, test_array, train_df=None, test_df=None):
         ''' Given preprocessed train and test data as arrays, applies a selection of models and evaluates them with R2.
-         Saves best model object and resturs its r2 '''
+            Saves best model object and returns its r2. If original DataFrames provided, computes Weighted Pearson Correlation.
+        '''
         try:
-            #dep and ind vars from train and test dfs
-            X_train, y_train, X_test, y_test = (
-                train_array[:,:-1], #take everything but the last col
-                train_array[:,-1], #take last col
-                test_array[:,:-1],
-                test_array[:,-1]
+            # dep and ind vars from train and test arrays
+            X_train, y_train = train_array[:, :-1], train_array[:, -1]
+            X_test, y_test = test_array[:, :-1], test_array[:, -1]
 
-            )
-            logging.info( 'Splitting trianing and test data completed' )
-        
-            #models dicc
+            logging.info('Splitting training and test data completed')
+
+            # models dictionary
             models = {
                 "Linear Regression": LinearRegression(),
                 "Lasso": Lasso(),
@@ -60,72 +59,54 @@ class ModelTrainer:
                 "AdaBoost Regressor": AdaBoostRegressor()
             }
 
-            #params
+            # hyperparameters
             params = {
-                "Decision Tree": {
-                    'criterion': ['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
-                },
-                "Random Forest Regressor": {
-                    'n_estimators': [8, 16, 32, 64, 128, 256]
-                },
-                "Gradient Boosting": {
-                    'learning_rate': [.1, .01, .05, .001],
-                    'subsample': [0.6, 0.7, 0.8, 0.9],
-                    'n_estimators': [8, 16, 32, 64, 128]
-                },
+                "Decision Tree": {'criterion': ['squared_error', 'friedman_mse', 'absolute_error', 'poisson']},
+                "Random Forest Regressor": {'n_estimators': [8, 16, 32, 64, 128, 256]},
+                "Gradient Boosting": {'learning_rate': [.1, .01, .05, .001],
+                                      'subsample': [0.6, 0.7, 0.8, 0.9],
+                                      'n_estimators': [8, 16, 32, 64, 128]},
                 "Linear Regression": {},
-                "Lasso": {
-                    'alpha': [0.01, 0.1, 1.0, 10.0]
-                },
-                "Ridge": {
-                    'alpha': [0.01, 0.1, 1.0, 10.0]
-                },
-                "K-Neighbors Regressor": {
-                    'n_neighbors': [3, 5, 7]
-                },
-                "XGBRegressor": {
-                    'learning_rate': [.1, .01],
-                    'n_estimators': [50, 100]
-                },
-                "CatBoosting Regressor": {
-                    'depth': [6, 8],
-                    'learning_rate': [0.01, 0.05],
-                    'iterations': [30, 50]
-                },
-                "AdaBoost Regressor": {
-                    'learning_rate': [.1, .01],
-                    'n_estimators': [50, 100]
-                }
+                "Lasso": {'alpha': [0.01, 0.1, 1.0, 10.0]},
+                "Ridge": {'alpha': [0.01, 0.1, 1.0, 10.0]},
+                "K-Neighbors Regressor": {'n_neighbors': [3, 5, 7]},
+                "XGBRegressor": {'learning_rate': [.1, .01], 'n_estimators': [50, 100]},
+                "CatBoosting Regressor": {'depth': [6, 8], 'learning_rate': [0.01, 0.05], 'iterations': [30, 50]},
+                "AdaBoost Regressor": {'learning_rate': [.1, .01], 'n_estimators': [50, 100]}
             }
 
             # evaluate models
             model_report, best_models = evaluate_models(
-             X_train=X_train,
-             y_train=y_train,
-             X_test=X_test,
-             y_test=y_test,
-             models=models,
-             param=params
+                X_train_arr=X_train,
+                y_train=y_train,
+                X_test_arr=X_test,
+                y_test=y_test,
+                models=models,
+                param=params,
+                X_train_df=train_df,  # pass original DataFrame if available
+                X_test_df=test_df
             )
-            
-            #best model
+
+            # best model
             best_model_name = max(model_report, key=model_report.get)
             best_model_score = model_report[best_model_name]
             best_model = best_models[best_model_name]
 
-            if best_model_score < 0.01: #if no best model cancel
-                raise CustomException( "No best model found" )
+            if best_model_score < 0.01:  # if no best model cancel
+                raise CustomException("No best model found")
 
             logging.info(f"Best model: {best_model_name} with score: {best_model_score}")
 
-            #save best model object, we want to use it later
+            # save best model object
             save_object(
-                file_path = self.model_trainer_config.best_model_storing_path,
+                file_path=self.model_trainer_config.best_model_storing_path,
                 obj=best_model
             )
 
-            predicted = best_model.predict( X_test )
-            r2_square = r2_score( y_test, predicted )
+            # predictions and r2
+            y_pred = best_model.predict(X_test)
+            r2_square = r2_score(y_test, y_pred)
+
             return r2_square
 
         except Exception as e:
