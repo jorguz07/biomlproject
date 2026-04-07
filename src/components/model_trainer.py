@@ -1,51 +1,43 @@
-#this module defines the data transform component
-# - splits training and testing arrays into dep and ind vars
-# - trains and tests on a catalogue of models
-# - saves best model object
-# - returns r2 of best model object
-
 import os
 import sys
 from dataclasses import dataclass
-
-from scipy.stats import pearsonr
 
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
-from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from catboost import CatBoostRegressor
 from xgboost import XGBRegressor
 
 from src.exception import CustomException
 from src.logger import logging
 
-from src.utils import save_object
-from src.utils import evaluate_models
+from src.utils import save_object, evaluate_models
 
-#class to store vars, to be used in model trainer
+
 @dataclass
 class ModelTrainerConfig:
-    best_model_storing_path = os.path.join( 'artifacts','model.pkl' )
+    best_model_storing_path = os.path.join('artifacts', 'model.pkl')
 
-# class for data training
+
 class ModelTrainer:
     def __init__(self):
-        self.model_trainer_config = ModelTrainerConfig()  # creates instance of ModelTrainerConfig class
+        self.model_trainer_config = ModelTrainerConfig()
 
-    def initiate_model_trainer(self, train_array, test_array, train_df=None, test_df=None):
-        ''' Given preprocessed train and test data as arrays, applies a selection of models and evaluates them with R2.
-            Saves best model object and returns its r2. If original DataFrames provided, computes Weighted Pearson Correlation.
-        '''
+    def initiate_model_trainer(self, train_array, test_array, train_df, test_df):
+        """
+        Trains multiple models and evaluates them using Weighted Pearson Correlation (WPC).
+        Saves the best model and returns its WPC score.
+        """
+
         try:
-            # dep and ind vars from train and test arrays
+            # split arrays
             X_train, y_train = train_array[:, :-1], train_array[:, -1]
             X_test, y_test = test_array[:, :-1], test_array[:, -1]
 
             logging.info('Splitting training and test data completed')
 
-            # models dictionary
+            # models
             models = {
                 "Linear Regression": LinearRegression(),
                 "Lasso": Lasso(),
@@ -63,9 +55,11 @@ class ModelTrainer:
             params = {
                 "Decision Tree": {'criterion': ['squared_error', 'friedman_mse', 'absolute_error', 'poisson']},
                 "Random Forest Regressor": {'n_estimators': [8, 16, 32, 64, 128, 256]},
-                "Gradient Boosting": {'learning_rate': [.1, .01, .05, .001],
-                                      'subsample': [0.6, 0.7, 0.8, 0.9],
-                                      'n_estimators': [8, 16, 32, 64, 128]},
+                "Gradient Boosting": {
+                    'learning_rate': [.1, .01, .05, .001],
+                    'subsample': [0.6, 0.7, 0.8, 0.9],
+                    'n_estimators': [8, 16, 32, 64, 128]
+                },
                 "Linear Regression": {},
                 "Lasso": {'alpha': [0.01, 0.1, 1.0, 10.0]},
                 "Ridge": {'alpha': [0.01, 0.1, 1.0, 10.0]},
@@ -75,7 +69,7 @@ class ModelTrainer:
                 "AdaBoost Regressor": {'learning_rate': [.1, .01], 'n_estimators': [50, 100]}
             }
 
-            # evaluate models
+            # evaluate
             model_report, best_models = evaluate_models(
                 X_train_arr=X_train,
                 y_train=y_train,
@@ -83,33 +77,27 @@ class ModelTrainer:
                 y_test=y_test,
                 models=models,
                 param=params,
-                X_train_df=train_df,  # pass original DataFrame if available
+                X_train_df=train_df,
                 X_test_df=test_df
             )
 
-            # best model
+            # best model selection
             best_model_name = max(model_report, key=model_report.get)
             best_model_score = model_report[best_model_name]
             best_model = best_models[best_model_name]
 
-            if best_model_score < 0.01:  # if no best model cancel
-                raise CustomException("No best model found")
+            if best_model_score is None or best_model_score < 0.01:
+                raise CustomException("No valid best model found")
 
-            logging.info(f"Best model: {best_model_name} with score: {best_model_score}")
+            logging.info(f"Best model: {best_model_name} with WPC: {best_model_score}")
 
-            # save best model object
+            # save
             save_object(
                 file_path=self.model_trainer_config.best_model_storing_path,
                 obj=best_model
             )
 
-            # predictions and r2
-            y_pred = best_model.predict(X_test)
-            r2_square = r2_score(y_test, y_pred)
-
-            logging.info(f"Best model in testing: {best_model_name} with score: {best_model_score}")
-
-            return r2_square
+            return best_model_score
 
         except Exception as e:
             raise CustomException(e, sys)
