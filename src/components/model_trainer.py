@@ -55,7 +55,7 @@ class ModelTrainer:
                 "Random Forest Regressor": RandomForestRegressor(),
                 "Gradient Boosting": GradientBoostingRegressor(),
                 "XGBRegressor": XGBRegressor(),
-                "CatBoosting Regressor": CatBoostRegressor(verbose=False),
+                "CatBoosting Regressor": CatBoostRegressor(verbose=False, allow_writing_files=False),
                 "AdaBoost Regressor": AdaBoostRegressor()
             }
 
@@ -106,6 +106,8 @@ class ModelTrainer:
             # predictions and r2
             y_pred = best_model.predict(X_test)
             r2_square = r2_score(y_test, y_pred)
+
+            logging.info(f"Best model in testing: {best_model_name} with score: {best_model_score}")
 
             return r2_square
 
