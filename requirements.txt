@@ -7,4 +7,5 @@ scipy
 catboost
 xgboost
 dill
+shap
 #-e .
